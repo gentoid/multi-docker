@@ -1,0 +1,20 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t gentoid/react-test -f client/Dockerfile.dev client/
+
+script:
+  - docker run gentoid/react-test npm test -- --coverage
+
+after_success:
+  - docker build -t gentoid/multi-client ./client
+  - docker build -t gentoid/multi-nginx ./nginx
+  - docker build -t gentoid/multi-server ./server
+  - docker build -t gentoid/multi-worker ./worker
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  - docker push gentoid/multi-client
+  - docker push gentoid/multi-nginx
+  - docker push gentoid/multi-server
+  - docker push gentoid/multi-worker
