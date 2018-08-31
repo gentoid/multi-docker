@@ -6,7 +6,6 @@ const redisClient = redis.createClient({
   port: keys.redisPort,
   retry_strategy: () => 1000
 });
-
 const sub = redisClient.duplicate();
 
 function fib(index) {
@@ -14,11 +13,7 @@ function fib(index) {
   return fib(index - 1) + fib(index - 2);
 }
 
-console.log('here in worker');
-
 sub.on('message', (channel, message) => {
-  console.log('Got to calculate ' + message + ' on ' + channel);
   redisClient.hset('values', message, fib(parseInt(message)));
 });
-
 sub.subscribe('insert');
